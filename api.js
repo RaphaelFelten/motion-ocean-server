@@ -5,7 +5,11 @@ export async function get(url, params) {
   const fullUrl = `${process.env.TMDB_API_URL}/${url}?api_key=${
     process.env.TMDB_API_KEY
   }${getQueryParams(params)}`;
-  const res = await axios.get(fullUrl);
+  const res = await axios.get(fullUrl, {
+    headers: {
+      'Accept-Encoding': 'gzip,deflate,compress',
+    },
+  });
   return res.data;
 }
 
