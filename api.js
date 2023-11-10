@@ -1,6 +1,10 @@
 import axios from 'axios';
 import {} from 'dotenv/config';
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const Youtube = require('youtube-stream-url');
+
 export async function get(url, params) {
   const fullUrl = `${process.env.TMDB_API_URL}/${url}?api_key=${
     process.env.TMDB_API_KEY
@@ -28,6 +32,11 @@ export async function getImage(path, size) {
     responseType: 'arraybuffer',
   });
   return res.data;
+}
+
+export async function getYoutubeStreamUrl(id) {
+  const url = `https://www.youtube.com/watch?v=${id}`;
+  return await Youtube.getInfo({ url });
 }
 
 function getQueryParams(obj) {
