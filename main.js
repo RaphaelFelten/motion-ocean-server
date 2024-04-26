@@ -1,7 +1,13 @@
 import express, { json } from 'express';
 import cors from 'cors';
 import {} from 'dotenv/config';
-import { get, getImage, getYoutubeStreamUrl } from './api.js';
+import {
+  get,
+  post,
+  deleteRequest,
+  getImage,
+  getYoutubeStreamUrl,
+} from './api.js';
 import Cache from './cache.js';
 
 const app = express();
@@ -13,22 +19,35 @@ await cache.init();
 
 app.use('/data/:path(*)', async (req, res) => {
   try {
+    const isGet = req.method === 'GET';
+    const isPost = req.method === 'POST';
+    const isDelete = req.method === 'DELETE';
+
     // Check if the data is in the cache
-    const cached = await cache.getData(req.params.path, req.query);
-    if (cached) {
-      console.log('cached data:', cached.data);
-      res.send(cached.data);
-      return;
+    if (isGet) {
+      const cached = await cache.getData(req.params.path, req.query);
+      if (cached) {
+        console.log('cached data:', cached.data);
+        res.send(cached.data);
+        return;
+      }
     }
 
-    // Get the data from the API
-    const results = await get(req.params.path, req.query);
+    let results;
 
-    // Save the data in the cache
-    await cache.setData(req.params.path, req.query, results);
+    // Get the data from the API and save it in the cache
+    if (isGet) {
+      results = await get(req.params.path, req.query);
+      await cache.setData(req.params.path, req.query, results);
+    } else if (isPost) {
+      results = await post(req.params.path, req.body, req.query);
+    } else if (isDelete) {
+      results = await deleteRequest(req.params.path, req.body, req.query);
+    }
 
     res.send(results);
   } catch (e) {
+    console.error(e.message);
     res.status(500).send(e.message);
   }
 });

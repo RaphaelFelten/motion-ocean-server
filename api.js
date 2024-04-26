@@ -17,6 +17,22 @@ export async function get(url, params) {
   return res.data;
 }
 
+export async function post(url, data, params) {
+  const fullUrl = `${process.env.TMDB_API_URL}/${url}?api_key=${
+    process.env.TMDB_API_KEY
+  }${getQueryParams(params)}`;
+  const res = await axios.post(fullUrl, data);
+  return res.data;
+}
+
+export async function deleteRequest(url, data, params) {
+  const fullUrl = `${process.env.TMDB_API_URL}/${url}?api_key=${
+    process.env.TMDB_API_KEY
+  }${getQueryParams(params)}`;
+  const res = await axios.delete(fullUrl, { data });
+  return res.data;
+}
+
 export async function getImage(path, size) {
   let url = process.env.TMDB_IMG_URL;
   if (!size) {
